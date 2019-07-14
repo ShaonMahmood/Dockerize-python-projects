@@ -1,0 +1,99 @@
+version: '2'
+
+services:
+
+
+  nginx:
+    restart: always
+    image: nginx:latest
+    container_name: nz01
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./config/nginx:/etc/nginx/conf.d
+
+    volumes_from:
+      - web:ro
+    depends_on:
+      - web
+
+  db:
+    image: postgres
+    hostname: db
+    container_name: db01
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # Redis
+  redis:
+    container_name: rd01
+    restart: always
+    image: redis:latest
+    hostname: redis
+    volumes:
+    - redisdata:/data
+
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    hostname: web
+    container_name: web01
+    env_file:
+      - .env
+    command: ./run_web.sh
+    #command: bash -c "python manage.py makemigrations && python manage.py migrate && gunicorn mydjango.wsgi -b 0.0.0.0:8000"
+    volumes:
+      - /usr/src/app
+      - /usr/src/app/static
+    expose:
+      - "8000"
+    # set up links so that web knows about db, rabbit and redis
+    links:
+      - db
+      - redis
+    depends_on:
+      - db
+
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ./run_celery.sh
+    container_name: wrkr01
+    env_file:
+      - .env
+    volumes_from:
+      - web:ro
+    links:
+      - db
+      - redis
+    depends_on:
+      - redis
+
+  beat:
+    container_name: bt01
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ./run_celery_beat.sh
+    env_file:
+      - .env
+    volumes_from:
+      - web:ro
+    links:
+      - db
+      - redis
+    depends_on:
+      - redis
+
+volumes:
+  pgdata:
+  redisdata:

@@ -1,0 +1,5 @@
+Django==1.11.10
+redis
+django-redis
+gunicorn
+psycopg2==2.7.4

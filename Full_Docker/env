@@ -1,0 +1,5 @@
+DB_NAME=djDocker
+DB_USER=djDockerUser
+DB_PASS=djDockerPass
+DB_SERVICE=postgres
+DB_PORT=5432

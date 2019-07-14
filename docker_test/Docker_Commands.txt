@@ -1,0 +1,42 @@
+## List Docker CLI commands
+docker
+docker container --help
+
+## Display Docker version and info
+docker --version
+docker version
+docker info
+
+## Execute Docker image
+docker run hello-world
+docker run -p 8000:8000 (image-name)
+docker run -it -p 8000:8000 (image-name)
+
+## List Docker images
+docker image ls
+
+## List Docker containers (running, all, all in quiet mode)
+docker container ls
+docker container ls --all/ docker ps -a
+docker container ls -aq
+
+## Remove(images, container)
+docker rmi (imageId)
+docker rm (containerId)
+docker rm $(docker ps -a -q -f status=exited)
+
+## Build Images(with tag)
+docker build -t myapp1 .
+
+## Stop A container
+docker stop (containerId)
+
+## Swarn
+docker swarn init
+docker stack deploy -c docker-compose.yml getstartedlab
+docker service ps getstartedlab_web
+docker swarm leave --force
+
+## Service List
+docker service ls
+docker service ps getstartedlab_web
